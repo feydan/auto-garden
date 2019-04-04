@@ -1,20 +1,30 @@
 # auto-garden
+Automatic garden watering system using Raspberry Pi.
 
+## Running the watering script
+`python3 water_the_garden.py`
 
-# Garden specs
+## Adding the script to be run with cron on a schedule
+Sacramento has a watering ordinance to only water two days per week and only between the hours of 7pm and 10am.
+My two days are Tuesday and Thursday.  I setup my `crontab -e` to run at 5am Tuesday and Thursday (replace <username>):
+```bash
+0 5 * * 2,4 python3 /home/<username>/auto-garden/water_the_garden.py
+```
 
-| Label               | Value         |
-| ------------------- |--------------:|
-| Square Feet         | 143           |
-| Emitters            | 106           |
-| Flow Rate           | 0.5 gal/hr    |
-| Crop Coefficient    | 0.6           |
-| Density Coefficient | 1             |
-| Exposure Factor     | 1             |
-| Efficiency          | 0.9           |
-| Base hr/week        | 1.12          |
+## Garden specs
 
-## ETo's:
+| Label                  | Value         |
+| -------------------    |--------------:|
+| Square Feet            | 143           |
+| Emitters               | 106           |
+| Flow Rate (per emitter)| 0.5 gal/hr    |
+| Crop Coefficient       | 0.6           |
+| Density Coefficient    | 1             |
+| Exposure Factor        | 1             |
+| Efficiency             | 0.9           |
+| Base hr/week           | 1.12          |
+
+### ETo's:
 ETo's: https://cimis.water.ca.gov/App_Themes/images/etozonemap.jpg
 
 Hours per week calculation: https://ucanr.edu/sites/scmg/files/30917.pdf
