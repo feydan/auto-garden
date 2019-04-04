@@ -4,18 +4,10 @@ import os
 import RPi.GPIO as GPIO
 import time
 
-load_dotenv()
-
 # GPIO pin controlling the gate or relay
 control_gpio_pin = 16
 
-mqtt_host = os.getenv('MQTT_HOST')
-mqtt_topic = os.getenv('MQTT_TOPIC')
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(control_gpio_pin, GPIO.OUT)
-
-hours_per_month = {
+hours_per_week = {
     "January": 1.7,
     "February": 2.46,
     "March": 4.1,
@@ -33,14 +25,23 @@ hours_per_month = {
 # How many days per week you will be watering
 days_per_week = 2
 
+# Get mqtt variables from .env
+load_dotenv()
+mqtt_host = os.getenv('MQTT_HOST')
+mqtt_topic = os.getenv('MQTT_TOPIC')
+
+# Set up GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(control_gpio_pin, GPIO.OUT)
+
 
 # Gets the number of hours that we want to water.
-# Finds the number of hours using the hours_per_month dictionary with the current month
+# Finds the number of hours using the hours_per_week dictionary with the current month
 # and divides by days_per_week
 def get_watering_hours():
     now = datetime.datetime.now()
     month = now.strftime("%B")
-    return hours_per_month[month] / days_per_week
+    return hours_per_week[month] / days_per_week
 
 
 # Waters the garden by turning the GPIO pin on for the specified number of hours
