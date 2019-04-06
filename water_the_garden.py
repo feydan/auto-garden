@@ -1,8 +1,9 @@
-import datetime
+from datetime import datetime
 from dotenv import load_dotenv
 import os
 import RPi.GPIO as GPIO
 import time
+from track_weather import rain_in_past_two_days
 
 # GPIO pin controlling the gate or relay
 control_gpio_pin = 16
@@ -25,8 +26,10 @@ hours_per_week = {
 # How many days per week you will be watering
 days_per_week = 2
 
-# Get mqtt variables from .env
+# Get weather and mqtt variables from .env
 load_dotenv()
+open_weather_app_id = os.getenv('OPEN_WEATHER_APP_ID')
+zip_code = os.getenv('ZIP_CODE')
 mqtt_host = os.getenv('MQTT_HOST')
 mqtt_topic = os.getenv('MQTT_TOPIC')
 
@@ -39,7 +42,7 @@ GPIO.setup(control_gpio_pin, GPIO.OUT)
 # Finds the number of hours using the hours_per_week dictionary with the current month
 # and divides by days_per_week
 def get_watering_hours():
-    now = datetime.datetime.now()
+    now = datetime.now()
     month = now.strftime("%B")
     return hours_per_week[month] / days_per_week
 
@@ -60,7 +63,19 @@ def water_the_garden(hours):
         pass
 
 
+def publish_to_mqtt(hours):
+    # Publish to mqtt if it is configured
+    if mqtt_host is not None:
+        import paho.mqtt.publish as publish
+        publish.single(mqtt_topic, hours, hostname=mqtt_host)
+
+
 if __name__ == '__main__':
+    # Check weather if configured
+    if open_weather_app_id is not None and zip_code is not None and rain_in_past_two_days():
+        print('Not watering because it rained in the past two days')
+        publish_to_mqtt(0)
+
     hours = get_watering_hours()
     print('Watering for ' + str(hours) + ' hours')
 
@@ -73,8 +88,4 @@ if __name__ == '__main__':
 
     print('Watered for ' + str(total_time_hours) + ' hours')
 
-    # Publish to mqtt if it is configured
-    if mqtt_host is not None:
-        import paho.mqtt.publish as publish
-
-        publish.single(mqtt_topic, total_time_hours, hostname=mqtt_host)
+    publish_to_mqtt(total_time_hours)
