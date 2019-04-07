@@ -1,5 +1,6 @@
 from datetime import datetime
 from dotenv import load_dotenv
+import json
 import os
 import RPi.GPIO as GPIO
 import time
@@ -63,11 +64,18 @@ def water_the_garden(hours):
         pass
 
 
-def publish_to_mqtt(hours):
+def publish_to_mqtt(start_time, end_time, hours):
     # Publish to mqtt if it is configured
     if mqtt_host is not None:
         import paho.mqtt.publish as publish
-        publish.single(mqtt_topic, hours, hostname=mqtt_host)
+        payload = json.dumps({
+            'time_frame': {
+                'gte': start_time,
+                'lte': end_time
+            },
+            'hours': hours
+        })
+        publish.single(mqtt_topic, payload, hostname=mqtt_host)
 
 
 if __name__ == '__main__':
@@ -83,9 +91,10 @@ if __name__ == '__main__':
 
     water_the_garden(hours)
 
-    total_time = time.time() - start_time
+    end_time = time.time()
+    total_time = end_time - start_time
     total_time_hours = total_time/3600
 
     print('Watered for ' + str(total_time_hours) + ' hours')
 
-    publish_to_mqtt(total_time_hours)
+    publish_to_mqtt(start_time, end_time, total_time_hours)
