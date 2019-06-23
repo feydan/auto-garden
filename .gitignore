@@ -1,2 +1,4 @@
 .env
+__pycache__
 rain.json
+kibana_objects.json

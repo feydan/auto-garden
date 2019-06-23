@@ -9,7 +9,7 @@ import requests
 from statistics import mean
 from urllib3.exceptions import HTTPError
 
-# Get weather
+# Get env variables
 load_dotenv()
 open_weather_app_id = os.getenv('OPEN_WEATHER_APP_ID')
 zip_code = os.getenv('ZIP_CODE')

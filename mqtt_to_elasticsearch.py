@@ -10,7 +10,24 @@ mqtt_host = os.getenv('MQTT_HOST')
 
 channelSubs = "#"
 
-miflora_namespace = 'miflora'
+# {
+#   <namespace>: {
+#       'index': '<indexName>',
+#       'topic_field': '<field name for topic>',
+#       'topic_blacklist': [<list of topic strings>]
+#   }
+# }
+# defaults: { <namespace>: {'index': '<namespace>', 'topic_field': 'topic', 'topic_blacklist': []} }
+namespace_config = {
+    'miflora': {
+        'index': 'garden_sensor',
+        'topic_field': 'device',
+        'topic_blacklist': ['$announce'],
+    }
+}
+
+default_index_prefix = 'garden_'
+
 
 # Called when connected
 def on_connect(client, userdata, flags, rc):
@@ -24,24 +41,49 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(msg.topic + " " + str(msg.payload))
 
-    now = datetime.utcnow()
-
-    payload = json.loads(msg.payload)
-    payload['timestamp'] = now
-
     parts = msg.topic.split('/')
     namespace = parts[0]
     topic = parts[1]
-    if namespace == miflora_namespace:
-        payload['device'] = topic
-        print("Sending to Elasticsearch garden index: " + str(payload))
-        res = es.index(index="garden", doc_type="garden", body=payload)
+
+    config = get_namespace_config(namespace)
+
+    if topic in config['topic_blacklist']:
+        return
+
+    payload = json.loads(msg.payload)
+
+    now = datetime.utcnow()
+    payload['timestamp'] = now
+
+    payload[config['topic_field']] = topic
+    print("Sending to Elasticsearch " + config['index'] + " index: " + str(payload))
+    try:
+        res = es.index(index=config['index'], doc_type='_doc', body=payload)
         print(res['result'])
-    else:
-        payload['topic'] = topic
-        print("Sending to Elasticsearch " + namespace + " index: " + str(payload))
-        res = es.index(index=namespace, doc_type=namespace, body=payload)
-        print(res['result'])
+    except Exception as e:
+        print(str(e))
+
+
+def get_namespace_config(namespace):
+    fields = ('index', 'topic_field', 'topic_blacklist')
+    if namespace in namespace_config and all(field in namespace_config[namespace] for field in fields):
+        return namespace_config[namespace]
+
+    if namespace not in namespace_config:
+        namespace_config[namespace] = {}
+
+    config = namespace_config[namespace]
+
+    if 'index' not in config:
+        config['index'] = default_index_prefix + namespace
+
+    if 'topic_field' not in config:
+        config['topic_field'] = 'topic'
+
+    if 'topic_blacklist' not in config:
+        config['topic_blacklist'] = []
+
+    return config
 
 
 # Connects to Elasticsearch on localhost:9200

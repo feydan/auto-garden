@@ -17,13 +17,25 @@ Edit the following variables in water_the_garden.py
 Sacramento has a watering ordinance to only water two days per week and only between the hours of 7pm and 10am.
 My two days are Tuesday and Thursday.  I setup my `crontab -e` to run at 5am Tuesday and Thursday (replace `<username>`, replace path if necessary):
 ```bash
-0 5 * * 2,4 python3 /home/<username>/auto-garden/water_the_garden.py
+0 5 * * 2,4 python3 /home/<username>/auto-garden/water_the_garden.py >> /home/<username>/auto-garden/water_the_garden.log 2>&1
 ```
 
 ## MQTT support (optional)
 This script can also publish how long you watered the garden on each script run to an MQTT broker, which you can then use to track your system over time.
 
 To configure this rename the `.env.sample` file to `.env` and specify the topic and hostname of your mqtt broker.
+
+## Track weather
+To add weather support, add this to your crontab:
+```bash
+*/5 * * * * python3 /home/<username>/auto-garden/track_weather.py
+```
+
+## Track system statistics
+To add system statistics support, add this to your crontab:
+```bash
+*/1 * * * * python3 /home/<username>/auto-garden/system-stats.py
+```
 
 ## Garden specs
 
