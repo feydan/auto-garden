@@ -2,8 +2,12 @@
 
 import board
 import busio
+from dotenv import load_dotenv
+import os
+import json
 import adafruit_ads1x15.ads1015 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
+
 # from threading import RLock    #  May be needed if we end up multiplexing readings with a 16:1 analog mux
 
 # Get env variables
@@ -18,11 +22,9 @@ class VH400MoistureSensor(object):
 
     ADS1115 = 0x01
 
-    def __init__(self, i2c_addr=0x48, pin=None, gain=4096, sps=256, readings_to_average=1):
+    def __init__(self, i2c_addr=0x48, gain=1, readings_to_average=1):
         """
         A Vegetronix VH400 MoistureSensor.
-
-        Some notes from https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/blob/master/Adafruit_ADS1x15/ads1x15_ex_singleended.py
 
             Select the gain
               gain = 2/3  # +/- 6.144V
@@ -32,30 +34,13 @@ class VH400MoistureSensor(object):
               gain = 8   # +/- 0.512V
               gain = 16   # +/- 0.256V
 
-            Select the sample rate
-              sps = 8    # 8 samples per second
-              sps = 16   # 16 samples per second
-              sps = 32   # 32 samples per second
-              sps = 64   # 64 samples per second
-              sps = 128  # 128 samples per second
-              sps = 250  # 250 samples per second
-              sps = 475  # 475 samples per second
-              sps = 860  # 860 samples per second
-
             Possible ADS1x15 i2c address: 0x48, 0x48, 0x4a, 0x4b
-            Our default is 0x49  This will probably be hard-coded on the board.
-
-            ADS1015 = 0x00  # 12-bit ADC
-            ADS1115 = 0x01	# 16-bit ADC
+            Our default is 0x48  This will probably be hard-coded on the board.
 
         :param i2c_addr: i2c address of the ADS1115 chip
         :type i2c_addr: hex
-        :param pin: Which ADC do we read when talking to this sensor?
-        :type pin: int
         :param gain: Input gain.  This shouldn't be changed from 4096 as the VH400 has a 0-3v output
         :type gain: int
-        :param sps: How many samples per second will the ADC take?  Lower = less noise, Higher = faster readings.
-        :type sps: int
         :param readings_to_average: How many readings to we average before returning a value
         :type readings_to_average: int
         """
@@ -63,9 +48,7 @@ class VH400MoistureSensor(object):
         ads.gain = gain
 
         self._i2c_addr = i2c_addr
-        self._pin = pin
         self._gain = gain
-        self._sps = sps
         self._chan = AnalogIn(ads, ADS.P0)
         self.readings_to_average = readings_to_average
 
@@ -128,14 +111,14 @@ class VH400MoistureSensor(object):
         reading = 0.0
         for _i in range(self.readings_to_average):
             reading += self._chan.voltage
-        return reading / self.readings_to_average / 1000.0
+        return reading / self.readings_to_average
 
 
 if __name__ == "__main__":
 
     sensor0 = VH400MoistureSensor(pin=0)
     payload = {
-        'voltage': sensor0.raw_voltage
+        'voltage': sensor0.raw_voltage,
         'percent': sensor0.percent
     }
     print("Raw voltage: %s" % payload.voltage)
