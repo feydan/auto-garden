@@ -135,8 +135,8 @@ if __name__ == "__main__":
 
     sensor0 = VH400MoistureSensor(pin=0)
     payload = {
-        voltage: sensor0.raw_voltage
-        percent: sensor0.percent
+        'voltage': sensor0.raw_voltage
+        'percent': sensor0.percent
     }
     print("Raw voltage: %s" % payload.voltage)
     print("Percent: %s" % payload.percent)
