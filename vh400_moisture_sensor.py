@@ -116,13 +116,13 @@ class VH400MoistureSensor(object):
 
 if __name__ == "__main__":
 
-    sensor0 = VH400MoistureSensor(pin=0)
+    sensor0 = VH400MoistureSensor()
     payload = {
         'voltage': sensor0.raw_voltage,
         'percent': sensor0.percent
     }
-    print("Raw voltage: %s" % payload.voltage)
-    print("Percent: %s" % payload.percent)
+    print("Raw voltage: %s" % payload['voltage'])
+    print("Percent: %s" % payload['percent'])
     
     # Publish to mqtt if it is configured
     if mqtt_host is not None:
