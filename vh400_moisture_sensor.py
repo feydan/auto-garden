@@ -123,8 +123,8 @@ if __name__ == "__main__":
         'soil_mosture_voltage': sensor0.raw_voltage,
         'soil_moisture_percent': sensor0.percent
     }
-    print("Raw voltage: %s" % payload['voltage'])
-    print("Percent: %s" % payload['percent'])
+    print("Raw voltage: %s" % payload['soil_mosture_voltage'])
+    print("Percent: %s" % payload['soil_moisture_percent'])
     
     # Publish to mqtt if it is configured
     if mqtt_host is not None:
