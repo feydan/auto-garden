@@ -8,6 +8,8 @@ import json
 import adafruit_ads1x15.ads1015 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
+# Adapted from https://github.com/mecworks/garden_pi/blob/master/common/moisture_sensor.py
+
 # from threading import RLock    #  May be needed if we end up multiplexing readings with a 16:1 analog mux
 
 # Get env variables
