@@ -23,7 +23,7 @@ My two days are Tuesday and Thursday.  I setup my `crontab -e` to run at 5am Tue
 ```
 
 ## MQTT support (optional)
-This script can also publish how long you watered the garden on each script run to an MQTT broker, which you can then use to track your system over time.
+This script can also publish how long you watered the garden on each script run to an MQTT broker, which you can then use to track your system over time.  I'm currently piping this data in Elasticsearch and graphing in Kibana.  I may include setup instructions for this system in the future.
 
 To configure this rename the `.env.sample` file to `.env` and specify the topic and hostname of your mqtt broker.
 
