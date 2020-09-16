@@ -4,6 +4,8 @@ Automatic garden watering system using Raspberry Pi.
 ## Setup
 git clone this project to your Raspberry Pi
 
+`pipe install -r requirements.txt`
+
 Edit the following variables in water_the_garden.py
 
 - `control_gpio_pin` - change this to whatever pin you are using to control your relay or switch
