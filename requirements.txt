@@ -17,7 +17,7 @@ RPi.GPIO==0.6.5
 SecretStorage==2.3.1
 six==1.12.0
 ssh-import-id==5.6
-urllib3==1.19.1
+urllib3==1.26.5
 adafruit-circuitpython-lis3dh==5.0.2
 adafruit-circuitpython-busdevice==4.2.1
 adafruit-circuitpython-ads1x15==2.1.3
